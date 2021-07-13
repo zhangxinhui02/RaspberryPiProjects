@@ -1,0 +1,17 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+D:\学习\全动电子液晶测试程序\液晶模块配套资料整理\QDtech_2.2寸串口模块\QDtech_2.2寸SPI串口176X220_9225模块\QDtech_2.2寸SPI_9225_STM32综合测试代码\QDtech_TFT.uvproj
+Project File Date:  01/07/2014
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling Lcd_Driver.c...
+compiling GUI.c...
+compiling QDTFT_demo.c...
+linking...
+Program Size: Code=7630 RO-data=10154 RW-data=36 ZI-data=516  
+FromELF: creating hex file...
+".\Obj\STM32-FD-FLASHLED.axf" - 0 Error(s), 0 Warning(s).
