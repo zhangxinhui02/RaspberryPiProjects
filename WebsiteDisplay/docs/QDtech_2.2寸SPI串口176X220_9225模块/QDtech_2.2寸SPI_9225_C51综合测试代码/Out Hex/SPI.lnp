@@ -1,7 +1,0 @@
-".\Out Hex\Lcd_Driver.obj",
-".\Out Hex\main.obj",
-".\Out Hex\GUI.obj",
-".\Out Hex\QDTFT_demo.obj" 
-TO ".\Out Hex\SPI" 
-NOPRINT RAMSIZE(256) 
-DISABLEWARNING (16) 
