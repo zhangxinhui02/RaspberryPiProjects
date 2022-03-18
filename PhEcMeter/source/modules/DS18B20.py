@@ -2,7 +2,7 @@
 # 参考https://blog.csdn.net/qq_46476163/article/details/116534840
 import os
 import time
-device_file ='/sys/bus/w1/devices/28-012029ad0b30/w1_slave'
+device_file ='/sys/bus/w1/devices/28-3c01f09637ad/w1_slave'
 
 def _read_temp_raw():
     f = open(device_file,'r')

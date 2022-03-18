@@ -9,7 +9,7 @@ class DFRobot_PH():
 		global _acidVoltage
 		global _neutralVoltage
 		try:
-			with open('../phdata.txt', 'r') as f:
+			with open('./phdata.txt', 'r') as f:
 				neutralVoltageLine = f.readline()
 		#		print neutralVoltageLine
 				neutralVoltageLine = neutralVoltageLine.strip('neutralVoltage=')

@@ -1,36 +1,79 @@
+# 电压值
+REF = 5.08
+# pH模拟输入引脚
+AIN0 = 0
+# 电导率模拟输入引脚
+AIN1 = 1
+# 每两次取样的时间间隔
+CollectInterval = 0.02
+# 单次执行的取样次数
+CollectTimes = 40
+# 取样若干次的列表
+VoltageArray = []
+
 import time
 import sys
 sys.path.append('./modules/')
-ADS1115_REG_CONFIG_PGA_6_144V = 0x00  # 6.144V range = Gain 2/3
-ADS1115_REG_CONFIG_PGA_4_096V = 0x02  # 4.096V range = Gain 1
-ADS1115_REG_CONFIG_PGA_2_048V = 0x04  # 2.048V range = Gain 2 (default)
-ADS1115_REG_CONFIG_PGA_1_024V = 0x06  # 1.024V range = Gain 4
-ADS1115_REG_CONFIG_PGA_0_512V = 0x08  # 0.512V range = Gain 8
-ADS1115_REG_CONFIG_PGA_0_256V = 0x0A  # 0.256V range = Gain 16
 
-from modules.DFRobot_ADS1115 import ADS1115
+# from modules.DFRobot_ADS1115 import ADS1115
+from modules.ADS1263 import ADS1263
 from modules.DFRobot_EC import DFRobot_EC
 from modules.DFRobot_PH import DFRobot_PH
 from modules.DS18B20 import read_temp
 
-ads1115 = ADS1115()
+ads = ADS1263()
 ec = DFRobot_EC()
 ph = DFRobot_PH()
 
 ec.begin()
 ph.begin()
+
+
+def _get_adc_value(pin):
+    """获取一次电压值"""
+    if ads.ADS1263_init_ADC1('ADS1263_7200SPS') == -1:
+        exit()
+    ads.ADS1263_SetMode(0)
+    value = ads.ADS1263_GetAll()  # get ADC value
+    if value[pin] >> 31 == 1:
+        result = (REF * 2 - value[pin] * REF / 0x80000000) * -1
+    else:
+        result = (value[pin] * REF / 0x7fffffff)  # 32bit
+    ads.ADS1263_Exit()
+    return result
+
+
+def _get_average_list():
+    """获取列表均值"""
+    if CollectTimes <= 0:
+        print("Error number for the array to averaging!/n")
+        return -1
+    elif CollectTimes <= 5:   # 小于等于5，取均值
+        return sum(VoltageArray) / CollectTimes
+    else:   # 大于5，除去最大最小值，取均值
+        VoltageArray.pop(max(VoltageArray))
+        VoltageArray.pop(min(VoltageArray))
+        return sum(VoltageArray) / len(VoltageArray)
+
+
 while True:
     # Read your temperature sensor to execute temperature compensation
     temperature = read_temp()
-    # Set the IIC address
-    ads1115.setAddr_ADS1115(0x48)
-    # Sets the gain and input voltage range.
-    ads1115.setGain(ADS1115_REG_CONFIG_PGA_6_144V)
     # Get the Digital Value of Analog of selected channel
-    adc0 = ads1115.readVoltage(0)
-    adc1 = ads1115.readVoltage(1)
+    # pin0
+    VoltageArray = []
+    for i in range(CollectTimes):
+        VoltageArray.append(_get_adc_value(0))
+        time.sleep(CollectInterval)
+    adc0 = _get_average_list()
+    # pin1
+    VoltageArray = []
+    for i in range(CollectTimes):
+        VoltageArray.append(_get_adc_value(1))
+        time.sleep(CollectInterval)
+    adc1 = _get_average_list()
     # Convert voltage to EC with temperature compensation
-    EC = ec.readEC(adc0['r'], temperature)
-    PH = ph.readPH(adc1['r'], temperature)
+    EC = ec.readEC(adc0, temperature)
+    PH = ph.readPH(adc1, temperature)
     print("Temperature:%.1f ^C EC:%.2f ms/cm PH:%.2f " % (temperature, EC, PH))
     time.sleep(1.0)

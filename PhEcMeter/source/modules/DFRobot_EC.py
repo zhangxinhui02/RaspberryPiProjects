@@ -13,7 +13,7 @@ class DFRobot_EC():
 		global _kvalueLow
 		global _kvalueHigh
 		try:
-			with open('../ecdata.txt', 'r') as f:
+			with open('./ecdata.txt', 'r') as f:
 				kvalueLowLine  = f.readline()
 				kvalueLowLine  = kvalueLowLine.strip('kvalueLow=')
 				_kvalueLow     = float(kvalueLowLine)
